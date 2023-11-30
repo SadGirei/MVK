@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     DOUBLE_INT *resizedX;
     if (rank == 0)
     {
-        //дополняем массивы чтобы были кратены commSize
+        //дополняем массивы чтобы были кратны commSize
         resizedX = createResizedDoubleIntArray(x, n, elemPerRank * commSize);
     }
     DOUBLE_INT result;

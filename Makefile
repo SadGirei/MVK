@@ -1,4 +1,4 @@
-all: nine1
+all:fourteen1
 one:
 	mpicc first.c -o first
 	mpirun first
@@ -32,3 +32,15 @@ nine1:
 ten1:
 	mpicc ten.c -o ten
 	mpirun ten
+eleven1:
+	mpicc eleven.c -o eleven
+	mpirun -n 2 eleven
+twelve1:
+	mpicc twelve.c -o twelve
+	mpirun -n 4 twelve
+thirteen1:
+	mpicc thirteen.c -o thirteen
+	mpirun thirteen
+fourteen1:
+	mpicc fourteen.c -o fourteen
+	mpirun fourteen
