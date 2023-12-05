@@ -1,4 +1,4 @@
-all:fourteen1
+all:six1
 one:
 	mpicc first.c -o first
 	mpirun first
@@ -16,9 +16,9 @@ test:
 	mpirun -n 7 test1
 five1:
 	mpicc five.c -o five
-	mpirun -n 3 five
+	mpirun -n 2 five
 six1:
-	mpicc six.c -o  six -DPINGPONG
+	mpicc six.c -o  six -DPINGPING
 	mpirun -n 2  six 
 seven1:
 	mpicc seven.c -o seven

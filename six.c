@@ -21,6 +21,7 @@ int main(int argc, char **argv)
             a[i] = rand();
         }
         double start, end;
+        MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         for(int i = 0; i < times; ++i)
         {
@@ -33,6 +34,7 @@ int main(int argc, char **argv)
     if (rank == 1)
     {
         int b[n];
+        MPI_Barrier(MPI_COMM_WORLD);
         for(int i = 0; i < times; ++i)
         {
             MPI_Recv(b, n, MPI_INTEGER, 0, ARRAY_ID, MPI_COMM_WORLD, &status);
@@ -48,40 +50,42 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank == 0)
+    double start, end;
+    int a[n];
+    int bufSize = n * sizeof(int) + MPI_BSEND_OVERHEAD;
+    int *buf = malloc(bufSize);
+    if(buf == 0)
     {
-        MPI_Status status;
-        double start, end;
-        int a[n];
-        for(int i = 0; i < n; ++i)
-        {
-            a[i] = rand();
-        }
+        printf("не удалось выделить столько места");
+        return 0;
+    }
+    MPI_Buffer_attach(buf, bufSize);
+    for(int i = 0; i < n; ++i)
+    {
+        a[i] = rand();
+    }
+    if (rank == 0)
+    {   
+        MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         for(int i = 0; i < times; ++i)
         {
-            MPI_Send(a, n, MPI_INTEGER, 1, ARRAY_ID, MPI_COMM_WORLD);
-            MPI_Recv(a, n, MPI_INTEGER, 1, ARRAY_ID, MPI_COMM_WORLD, &status);
+            MPI_Bsend(a, n, MPI_INTEGER, 1, ARRAY_ID, MPI_COMM_WORLD);
+            MPI_Recv(a, n, MPI_INTEGER, 1, ARRAY_ID, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Barrier(MPI_COMM_WORLD);
         }
         end = MPI_Wtime();
         printf("%lf\n",(double)(end - start) );
     }
     if (rank == 1)
     {
-        MPI_Request request;
-        MPI_Status status;
-        double start, end;
-        int b[n];
-        for(int i = 0; i < n; ++i)
-        {
-            b[i] = rand();
-        }
+        MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         for(int i = 0; i < times; ++i)
         {
-            MPI_Irecv(b, n, MPI_INTEGER, 0, ARRAY_ID, MPI_COMM_WORLD, &request);
-            MPI_Send(b, n, MPI_INTEGER, 0, ARRAY_ID, MPI_COMM_WORLD);
-            MPI_Wait(&request, &status);
+            MPI_Bsend(a, n, MPI_INTEGER, 0, ARRAY_ID, MPI_COMM_WORLD);
+            MPI_Recv(a, n, MPI_INTEGER, 0, ARRAY_ID, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Barrier(MPI_COMM_WORLD);
         }
         end = MPI_Wtime();
         printf("%lf\n",(double)(end - start));
